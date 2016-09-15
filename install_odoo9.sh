@@ -103,7 +103,7 @@ mkdir odoo
 
 # get odoo9 from the official Github repository
 cd odoo
-git clone https://github.com/odoo/odoo -b 9.0
+git clone https://github.com/odoo/odoo --depth 1 -b 9.0
 ln -s odoo ./odoo9
 
 # install the required python modules
