@@ -3,6 +3,8 @@
 # Script to install odoo 9 on Ubuntu Server 16.04 LTS.
 # (c) Josef Kaser 2016
 # http://www.pragmasoft.de
+#
+# odoo will be listening on port 8069 on the external IP
 
 # variables
 
@@ -23,6 +25,17 @@ ODOO_ADMIN_PASSWD='$ecr3t'
 
 # needed later in the script to go back to the script directory
 START_DIR=$PWD
+
+# IP address the odoo service listens to
+INTERFACE_IP=`hostname -I | awk '{print $1}'`
+
+# here we go ;-)
+
+# script must be run as root
+if [ $USER != "root" ]; then
+	echo "Script must be run as root"
+	exit
+fi
 
 # set timezone
 echo "Etc/UTC" > /etc/timezone
@@ -49,13 +62,13 @@ pip install BeautifulSoup BeautifulSoup4 passlib pillow dateutils polib unidecod
 # install Node.js
 npm install -g npm
 npm install -g less-plugin-clean-css
-npm install -g less@1.4.2
+npm install -g less
 
 ln -s /usr/bin/nodejs /usr/bin/node
 rm /usr/bin/lessc
 ln -s /usr/local/bin/lessc /usr/bin/lessc
 
-# cerate odoo9.conf from template and set some parameters
+# create odoo9.conf from template and set some parameters
 if [ -f odoo9.conf ]
 	then rm odoo9.conf
 fi
@@ -64,6 +77,7 @@ cp odoo9.conf.template odoo9.conf
 sed -i s/{{admin_passwd}}/$ODOO_ADMIN_PASSWD/ odoo9.conf
 sed -i s/{{db_password}}/$PG_ROLE_ODOO_PWD/ odoo9.conf
 sed -i s/{{db_user}}/$PG_ROLE_ODOO_NAME/ odoo9.conf
+sed -i s/{{interface_ip}}/$INTERFACE_IP/ odoo9.conf
 
 # copy odoo9.conf to /etc/odoo
 cd /etc
